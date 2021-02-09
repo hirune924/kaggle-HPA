@@ -1,4 +1,7 @@
 *.ipynb
+#csv_log/
+#tb_log/
+#ckpt/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
