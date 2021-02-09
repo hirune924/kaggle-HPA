@@ -191,7 +191,7 @@ class LitSystem(pl.LightningModule):
         
         upper_alpha = 4.0
         alpha_schedule = 0.5
-        alpha = min(upper_alpha * self.current_epoch+1 / (self.hparams.epoch * alpha_schedule), upper_alpha)
+        alpha = min(upper_alpha * (self.current_epoch+1) / (self.hparams.epoch * alpha_schedule), upper_alpha)
         loss = class_loss + p_class_loss + alpha * re_loss
         
         self.log('total_loss', loss, on_epoch=True)
