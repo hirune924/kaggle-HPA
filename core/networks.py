@@ -23,14 +23,14 @@ from tools.ai.torch_utils import resize_for_tensors
 #######################################################################
 # Normalization
 #######################################################################
-from .sync_batchnorm.batchnorm import SynchronizedBatchNorm2d
+#from .sync_batchnorm.batchnorm import SynchronizedBatchNorm2d
 
-class FixedBatchNorm(nn.BatchNorm2d):
-    def forward(self, x):
-        return F.batch_norm(x, self.running_mean, self.running_var, self.weight, self.bias, training=False, eps=self.eps)
+#class FixedBatchNorm(nn.BatchNorm2d):
+#    def forward(self, x):
+#        return F.batch_norm(x, self.running_mean, self.running_var, self.weight, self.bias, training=False, eps=self.eps)
 
-def group_norm(features):
-    return nn.GroupNorm(4, features)
+#def group_norm(features):
+#    return nn.GroupNorm(4, features)
 #######################################################################
 
 class Backbone(nn.Module, ABC_Model):
@@ -58,7 +58,7 @@ class Backbone(nn.Module, ABC_Model):
             else:
                 dilation, dilated = 2, False
 
-            self.model = eval("resnest." + model_name)(pretrained=True, dilated=dilated, dilation=dilation, norm_layer=self.norm_fn)
+            self.model = eval("resnest." + model_name)(pretrained=False, dilated=dilated, dilation=dilation, norm_layer=self.norm_fn)
 
             del self.model.avgpool
             del self.model.fc
