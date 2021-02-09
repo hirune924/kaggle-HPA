@@ -28,7 +28,8 @@ from omegaconf import OmegaConf
 ####################
 
 conf_dict = {'batch_size': 32, 
-             'epoch': 20}
+             'epoch': 20, 
+            'output_dir': '/kqi/output'}
 conf_base = OmegaConf.create(conf_dict)
 
 
@@ -191,7 +192,11 @@ class LitSystem(pl.LightningModule):
         alpha = min(upper_alpha * self.current_epoch+1 / (self.hparams.epoch * alpha_schedule), upper_alpha)
         loss = class_loss + p_class_loss + alpha * re_loss
         
-        self.log('train_loss', loss, on_epoch=True)
+        self.log('total_loss', loss, on_epoch=True)
+        self.log('class_loss', class_loss, on_epoch=True)
+        self.log('p_class_loss', p_class_loss, on_epoch=True)
+        self.log('alpha', alpha, on_epoch=True)
+        self.log('re_loss', re_loss, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -232,11 +237,11 @@ def main():
     print(OmegaConf.to_yaml(conf))
     seed_everything(2021)
 
-    tb_logger = loggers.TensorBoardLogger(save_dir='tb_log/')
-    csv_logger = loggers.CSVLogger(save_dir='csv_log/')
+    tb_logger = loggers.TensorBoardLogger(save_dir=os.path.join(conf.output_dir, 'tb_log/'))
+    csv_logger = loggers.CSVLogger(save_dir=os.path.join(conf.output_dir, 'csv_log/'))
 
     lr_monitor = LearningRateMonitor(logging_interval='step')
-    checkpoint_callback = ModelCheckpoint(dirpath='ckpt', monitor='avg_val_loss', 
+    checkpoint_callback = ModelCheckpoint(dirpath=os.path.join(conf.output_dir, 'ckpt/'), monitor='avg_val_loss', 
                                           save_last=True, save_top_k=5, mode='min', 
                                           save_weights_only=True, filename='{epoch}-{avg_val_loss:.2f}')
 
