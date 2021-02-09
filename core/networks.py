@@ -97,6 +97,33 @@ class Classifier(Backbone):
             logits = self.classifier(x).view(-1, self.num_classes)
             return logits
 
+import torch.nn as nn
+import timm
+class CustomClassifier(nn.Module):
+    def __init__(self, model_name, num_classes=20):
+        super().__init__()
+        self.model = timm.create_model(model_name='tf_efficientnet_b3', num_classes=19, pretrained=False, in_chans=4)
+        self.classifier = nn.Conv2d(self.model.num_features, num_classes, 1, bias=False)
+        self.num_classes = num_classes
+    
+    def forward(self, x, with_cam=False):
+        x = self.model.forward_features(x)
+        
+        if with_cam:
+            features = self.classifier(x)
+            logits = self.global_average_pooling_2d(features)
+            return logits, features
+        else:
+            x = self.global_average_pooling_2d(x, keepdims=True) 
+            logits = self.classifier(x).view(-1, self.num_classes)
+            return logits  
+        
+    def global_average_pooling_2d(self, x, keepdims=False):
+        x = torch.mean(x.view(x.size(0), x.size(1), -1), -1)
+        if keepdims:
+            x = x.view(x.size(0), x.size(1), 1, 1)
+        return x
+    
 class Classifier_For_Positive_Pooling(Backbone):
     def __init__(self, model_name, num_classes=20, mode='fix'):
         super().__init__(model_name, num_classes, mode)

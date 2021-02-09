@@ -145,8 +145,9 @@ class LitSystem(pl.LightningModule):
         super().__init__()
         #self.conf = conf
         self.save_hyperparameters(conf)
-        self.model = Classifier(model_name='resnest50', num_classes=19, mode='normal')
-        self.param_groups = self.model.get_parameter_groups(print_fn=None)
+        #self.model = Classifier(model_name='resnest50', num_classes=19, mode='normal')
+        self.model = CustomClassifier(model_name='tf_efficientnet_b3', num_classes=19)
+        #self.param_groups = self.model.get_parameter_groups(print_fn=None)
         self.gap_fn = self.model.global_average_pooling_2d
         
         self.class_loss_fn = nn.MultiLabelSoftMarginLoss(reduction='none')
@@ -157,12 +158,13 @@ class LitSystem(pl.LightningModule):
         return self.model(x)
 
     def configure_optimizers(self):
-        optimizer = optimizer = PolyOptimizer([
-        {'params': self.param_groups[0], 'lr': 0.1, 'weight_decay': 1e-4},
-        {'params': self.param_groups[1], 'lr': 2*0.1, 'weight_decay': 0},
-        {'params': self.param_groups[2], 'lr': 10*0.1, 'weight_decay': 1e-4},
-        {'params': self.param_groups[3], 'lr': 20*0.1, 'weight_decay': 0},
-        ], lr=0.1, momentum=0.9, weight_decay=1e-4, max_step=100000, nesterov=True)
+        #optimizer = optimizer = PolyOptimizer([
+        #{'params': self.param_groups[0], 'lr': 0.1, 'weight_decay': 1e-4},
+        #{'params': self.param_groups[1], 'lr': 2*0.1, 'weight_decay': 0},
+        #{'params': self.param_groups[2], 'lr': 10*0.1, 'weight_decay': 1e-4},
+        #{'params': self.param_groups[3], 'lr': 20*0.1, 'weight_decay': 0},
+        #], lr=0.1, momentum=0.9, weight_decay=1e-4, max_step=100000, nesterov=True)
+        optimizer = torch.optim.Adam(self.model.parameters())
 
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100)
         
