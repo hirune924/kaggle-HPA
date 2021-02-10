@@ -40,7 +40,8 @@ conf_base = OmegaConf.create(conf_dict)
 def load_image(img_dir, img_id):
     img_path = os.path.join(img_dir, img_id)
     img = []
-    for c in ['blue', 'red', 'green', 'yellow']:
+    #for c in ['blue', 'red', 'green', 'yellow']:
+    for c in ['blue', 'red', 'green']:
         img.append(cv2.imread(img_path + f'_{c}.png', cv2.IMREAD_GRAYSCALE))
     return np.stack(img, axis=-1)
 
@@ -107,13 +108,15 @@ class HPADataModule(pl.LightningDataModule):
                         A.GaussNoise(var_limit=(10.0, 50.0), mean=0, always_apply=False, p=0.5),
                         #A.Rotate(limit=90, interpolation=1, border_mode=4, value=None, mask_value=None, always_apply=False, p=0.5),
                         A.ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.0, rotate_limit=45, interpolation=1, border_mode=4, value=255, mask_value=None, always_apply=False, p=0.5),
-                        A.Normalize(mean=(0.485, 0.456, 0.406, 0.406), std=(0.229, 0.224, 0.225, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0),
+                        #A.Normalize(mean=(0.485, 0.456, 0.406, 0.406), std=(0.229, 0.224, 0.225, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0),
+                        A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0),
                         A.Cutout(num_holes=8, max_h_size=8, max_w_size=8, fill_value=0, always_apply=False, p=0.5),
                         ])
 
             valid_transform = A.Compose([
                         A.Resize(height=512, width=512, interpolation=1, always_apply=False, p=1.0),
-                        A.Normalize(mean=(0.485, 0.456, 0.406, 0.406), std=(0.229, 0.224, 0.225, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0)
+                        #A.Normalize(mean=(0.485, 0.456, 0.406, 0.406), std=(0.229, 0.224, 0.225, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0)
+                        A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0),
                         ])
 
             self.train_dataset = HPADataset(train_df, '/kqi/parent/22019529/train', transform=train_transform)
