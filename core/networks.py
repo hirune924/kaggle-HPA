@@ -102,7 +102,8 @@ import timm
 class CustomClassifier(nn.Module):
     def __init__(self, model_name, num_classes=20):
         super().__init__()
-        self.model = timm.create_model(model_name='tf_efficientnet_b3', num_classes=19, pretrained=False, in_chans=4)
+        #self.model = timm.create_model(model_name='tf_efficientnet_b3', num_classes=19, pretrained=False, in_chans=4)
+        self.model = timm.create_model(model_name=model_name, num_classes=num_classes, pretrained=True, in_chans=3)
         self.classifier = nn.Conv2d(self.model.num_features, num_classes, 1, bias=False)
         self.num_classes = num_classes
     
